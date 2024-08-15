@@ -185,6 +185,77 @@ def ProcessFrame(model:object,frame:np.ndarray):
 
     return annotated_frame
 
+def load_ground_truth(gt_path: str) -> list:
+    """
+    Load ground truth bounding boxes from a text file.
+
+    args:
+        gt_path (str): Path to the ground truth text file.
+
+    returns:
+        list: List of ground truth bounding boxes [x1, y1, x2, y2].
+    """
+    ground_truth = []
+    with open(gt_path, 'r') as file:
+        for line in file:
+            #Map the ground truth co-ordinates to a list
+            coords = list(map(float, line.strip().split()))
+            ground_truth.append(coords)
+    return ground_truth
+
+def iou(box1: list, box2: list) -> float:
+    """
+    Calculate Intersection over Union (IoU) for two bounding boxes.
+
+    args:
+        box1 (list): First bounding box [x1, y1, x2, y2].
+        box2 (list): Second bounding box [x1, y1, x2, y2].
+
+    returns:
+        float: IoU score.
+    """
+    x1 = max(box1[0], box2[0])
+    y1 = max(box1[1], box2[1])
+    x2 = min(box1[2], box2[2])
+    y2 = min(box1[3], box2[3])
+
+    inter_area = max(0, x2 - x1) * max(0, y2 - y1)
+    box1_area = (box1[2] - box1[0]) * (box1[3] - box1[1])
+    box2_area = (box2[2] - box2[0]) * (box2[3] - box2[1])
+
+    iou_score = inter_area / float(box1_area + box2_area - inter_area)
+    return iou_score
+
+def ProcessFrame(model: object, frame: np.ndarray, ground_truth: list, iou_threshold: float) -> np.ndarray:
+    processed_frame = preProcessFrame(frame)
+    metadata = model.run(processed_frame)
+    print(f"Metadata: {metadata}")
+    
+    height, width, _ = frame.shape
+    
+    correct_predictions = 0
+    for gt_box in ground_truth:
+        for pred_box in metadata:
+            pred_coords = pred_box[:4]  # Extract only the coordinates
+            # print(f"pred_coords: {pred_coords}")
+            # print(f"gt_box: {gt_box}")
+            # Convert normalized predicted coordinates to pixel values
+            pred_coords[0] = pred_coords[0] * width  # x1
+            pred_coords[1] = pred_coords[1] * height  # y1
+            pred_coords[2] = pred_coords[2] * width  # x2
+            pred_coords[3] = pred_coords[3] * height  # y2
+            
+            iou_score = iou(gt_box, pred_coords)
+            print(f"iou_score: {iou_score}")
+            if iou_score >= iou_threshold:
+                correct_predictions += 1
+                break
+
+    print(f"Correct Predictions: {correct_predictions}/{len(ground_truth)}")
+
+    annotated_frame = postProcessFrame(metadata, frame)
+    return annotated_frame
+
 def getOutputPath(input:str, output:str)->str:
     """
     Function that takes input file path & output folder path and 
@@ -218,6 +289,9 @@ def main(args:object)->None:
     model = OnnxRunner(args.onnx, nms_thresh=args.iou_threshold, conf_thresh=args.conf_threshold)
 
     input_type = parse_input(args.input)
+    
+    # Load ground truth data
+    ground_truth = load_ground_truth(args.gt)  
 
     if(input_type=="IMG"):
 
@@ -227,7 +301,7 @@ def main(args:object)->None:
 
         image = cv2.imread(args.input)
         output_path = getOutputPath(args.input, args.output)
-        annotated_frame = ProcessFrame(model, image)
+        annotated_frame = ProcessFrame(model, image, ground_truth, args.iou_threshold)
 
     
         print(f"[INFO] Processed image in {time.time()-TIME_FLAG}s")
@@ -248,7 +322,7 @@ def main(args:object)->None:
             
             image = cv2.imread(img_path)
             output_path = getOutputPath(img_path, args.output)
-            annotated_frame = ProcessFrame(model, image)
+            annotated_frame = ProcessFrame(model, image, ground_truth, args.iou_threshold)
             cv2.imwrite(output_path, annotated_frame)
 
         print(f"[INFO] Processed {len(img_list)} images in {time.time()-TIME_FLAG}s. Avg : {(time.time()-TIME_FLAG)/len(img_list)}s")
@@ -263,8 +337,9 @@ if __name__ == "__main__":
     parser.add_argument('--input','-i', type=str, required=True, help="Data input path. Can be an image or a folder of images.")
     parser.add_argument('--onnx','-o', type=str, required=True, help="Onnx model path.")
     parser.add_argument('--output','-p', type=str, required=False, help="Output folder path. The infered and annotated data will be written in this folder. Default : results.", default="results")
-    parser.add_argument('--iou_threshold','-u', type=float, required=False, help="IOU threshold used in NMS. Default : 0.4", default=0.25)
-    parser.add_argument('--conf_threshold','-c', type=float, required=False, help="Confidence score threshold. Default : 0.5", default=0.25)
+    parser.add_argument('--iou_threshold','-u', type=float, required=False, help="IOU threshold used in NMS. Default : 0.4", default=0.1)
+    parser.add_argument('--conf_threshold','-c', type=float, required=False, help="Confidence score threshold. Default : 0.5", default=0.4)
+    parser.add_argument('--gt', '-g', type=str, required=True, help="Path to the ground truth text file.")
 
 
     args = parser.parse_args()
