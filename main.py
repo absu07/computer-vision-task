@@ -163,27 +163,27 @@ def postProcessFrame(metadata:list, frame:np.ndarray)->np.ndarray:
     return annotated_frame
 
 
-def ProcessFrame(model:object,frame:np.ndarray):
-    """
-    Main function that will take a raw OpenCV frame,
-    will preprocess it, will infer it using the onnx model
-    and will postprocess the result in order to draw the 
-    bounding boxes on the frame and save it.
+# def ProcessFrame(model:object,frame:np.ndarray):
+#     """
+#     Main function that will take a raw OpenCV frame,
+#     will preprocess it, will infer it using the onnx model
+#     and will postprocess the result in order to draw the 
+#     bounding boxes on the frame and save it.
 
-    args : 
-        model (OnnxRunner) : OnnxRunner that wraps an ORT object, able to be infered
-        frame (np.ndarray) : raw frame HWC
+#     args : 
+#         model (OnnxRunner) : OnnxRunner that wraps an ORT object, able to be infered
+#         frame (np.ndarray) : raw frame HWC
 
-    returns : 
-        np.ndarray : same frame as input but with bounding boxes drawn on it
-    """
+#     returns : 
+#         np.ndarray : same frame as input but with bounding boxes drawn on it
+#     """
 
-    processed_frame = preProcessFrame(frame)
-    metadata = model.run(processed_frame)
-    print(f"Metadata: {metadata}")
-    annotated_frame = postProcessFrame(metadata, frame)
+#     processed_frame = preProcessFrame(frame)
+#     metadata = model.run(processed_frame)
+#     print(f"Metadata: {metadata}")
+#     annotated_frame = postProcessFrame(metadata, frame)
 
-    return annotated_frame
+#     return annotated_frame
 
 def load_ground_truth(gt_path: str) -> list:
     """
