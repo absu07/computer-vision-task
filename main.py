@@ -138,7 +138,7 @@ def postProcessFrame(metadata:list, frame:np.ndarray)->np.ndarray:
     for box in metadata:
         # Extract coordinates and score
         x1, y1, x2, y2, score = box
-        print(f"x1 {x1}, y1 {y1}, x2 {x2}, y2 {y2}, score {score}")
+        # print(f"x1 {x1}, y1 {y1}, x2 {x2}, y2 {y2}, score {score}")
 
         # Convert normalized coordinates to pixel values
         x1 = int(x1 * width)
@@ -146,19 +146,19 @@ def postProcessFrame(metadata:list, frame:np.ndarray)->np.ndarray:
         x2 = int(x2 * width)
         y2 = int(y2 * height)
 
-        print("Drawing bounding box...")
+        # print("Drawing bounding box...")
         # Draw bounding box
         cv2.rectangle(annotated_frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
-        print("Bounding box drawn successfully.")
+        # print("Bounding box drawn successfully.")
 
         # Put score text
         label = f"{score:.2f}"
         cv2.putText(annotated_frame, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
 
-    cv2.imshow('Predictions', annotated_frame)
+    # cv2.imshow('Predictions', annotated_frame)
     
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
     
     return annotated_frame
 
@@ -205,9 +205,10 @@ def load_ground_truth(gt_path: str) -> list:
 
 def iou(box1: list, box2: list) -> float:
     """
+    args:
+
     Calculate Intersection over Union (IoU) for two bounding boxes.
 
-    args:
         box1 (list): First bounding box [x1, y1, x2, y2].
         box2 (list): Second bounding box [x1, y1, x2, y2].
 
@@ -229,7 +230,7 @@ def iou(box1: list, box2: list) -> float:
 def ProcessFrame(model: object, frame: np.ndarray, ground_truth: list, iou_threshold: float) -> np.ndarray:
     processed_frame = preProcessFrame(frame)
     metadata = model.run(processed_frame)
-    print(f"Metadata: {metadata}")
+    # print(f"Metadata: {metadata}")
     
     height, width, _ = frame.shape
     
@@ -246,15 +247,17 @@ def ProcessFrame(model: object, frame: np.ndarray, ground_truth: list, iou_thres
             pred_coords[3] = pred_coords[3] * height  # y2
             
             iou_score = iou(gt_box, pred_coords)
-            print(f"iou_score: {iou_score}")
+            # print(f"iou_score: {iou_score}")
             if iou_score >= iou_threshold:
                 correct_predictions += 1
                 break
 
     print(f"Correct Predictions: {correct_predictions}/{len(ground_truth)}")
 
+    accuracy = correct_predictions / len(ground_truth)
     annotated_frame = postProcessFrame(metadata, frame)
-    return annotated_frame
+    
+    return annotated_frame, accuracy
 
 def getOutputPath(input:str, output:str)->str:
     """
@@ -269,9 +272,48 @@ def getOutputPath(input:str, output:str)->str:
         str : output file path (/path/to/output/image_output.jpg)
     """
 
+    # file_name, extension = input.split("\\")[-1].split(".")
+
+    # # import pdb;pdb.set_trace()
+    # # output = "D:\Personal\Interviews\ML_SmartCowTakeHomeAssignment_2024\ML_SmartCowTakeHomeAssignment\Take_Home_Computer_Vision\computer_vision\computer-vision-task\results"
+    # # temp = os.path.join(output_x,file_name+"_output."+extension)
+    
+    # file_name = '\\'.join(file_name.split('\\')[:-2])
+    # # import pdb;pdb.set_trace()
+    # temp_file = input.split("/")[-1].split(".")[0].split('\\')[-1]
+    # test_path =  os.path.join(output,temp_file+"_output."+extension)
+    # # import pdb;pdb.set_trace()
+    # return os.path.join(output,temp_file+"_output."+extension)
+    
     file_name, extension = input.split("/")[-1].split(".")
     return os.path.join(output,file_name+"_output."+extension)
 
+def evaluate_models(onnx_files: list, img_list: list, gt_list: list, output_folder: str, iou_threshold: float, conf_threshold: float):
+    best_accuracy = 0
+    best_model = None
+
+    for onnx_file in onnx_files:
+        print(f"Evaluating {onnx_file}...")
+        model = OnnxRunner(onnx_file, nms_thresh=iou_threshold, conf_thresh=conf_threshold)
+        total_accuracy = 0
+
+        for idx, img_path in enumerate(img_list):
+            ground_truth = load_ground_truth(gt_list[idx])
+            image = cv2.imread(img_path)
+            output_path = getOutputPath(img_path, "D:\Personal\Interviews\ML_SmartCowTakeHomeAssignment_2024\ML_SmartCowTakeHomeAssignment\Take_Home_Computer_Vision\computer_vision\computer-vision-task\results")
+            annotated_frame, accuracy = ProcessFrame(model, image, ground_truth, iou_threshold)
+            total_accuracy += accuracy
+            cv2.imwrite(output_path, annotated_frame)
+
+        avg_accuracy = total_accuracy / len(img_list)
+        print(f"Model: {onnx_file}, Average Accuracy: {avg_accuracy:.4f}")
+
+        if avg_accuracy > best_accuracy:
+            best_accuracy = avg_accuracy
+            best_model = onnx_file
+
+    print(f"Best Model: {best_model} with Average Accuracy: {best_accuracy:.4f}")
+    return best_model
 
 def main(args:object)->None:
     """
@@ -286,49 +328,61 @@ def main(args:object)->None:
         - conf_threshold (float)
     """
 
-    model = OnnxRunner(args.onnx, nms_thresh=args.iou_threshold, conf_thresh=args.conf_threshold)
+    # model = OnnxRunner(args.onnx, nms_thresh=args.iou_threshold, conf_thresh=args.conf_threshold)
 
-    input_type = parse_input(args.input)
-    
-    # Load ground truth data
-    ground_truth = load_ground_truth(args.gt)  
+    input_type = parse_input(args.input)  
+    onnx_files = sorted(glob(os.path.join(args.onnx, "*.onnx")))
 
     if(input_type=="IMG"):
+        # Load ground truth data
+        # ground_truth = load_ground_truth(args.gt)
+        # print(f"[INFO] Processing 1 image : {args.input}")
 
-        print(f"[INFO] Processing 1 image : {args.input}")
+        # TIME_FLAG = time.time()
 
-        TIME_FLAG = time.time()
+        # image = cv2.imread(args.input)
+        # output_path = getOutputPath(args.input, args.output)
+        # annotated_frame, accuracy = ProcessFrame(model, image, ground_truth, args.iou_threshold)
 
-        image = cv2.imread(args.input)
-        output_path = getOutputPath(args.input, args.output)
-        annotated_frame = ProcessFrame(model, image, ground_truth, args.iou_threshold)
+        # best_model = evaluate_models(onnx_files, image, ground_truth, args.output, args.iou_threshold, args.conf_threshold)
+        # # print(f"[INFO] Processed image in {time.time()-TIME_FLAG}s")
 
-    
-        print(f"[INFO] Processed image in {time.time()-TIME_FLAG}s")
+        # cv2.imwrite(output_path, annotated_frame)
+        img_list = [args.input]
+        gt_list = [args.gt]
 
-        cv2.imwrite(output_path, annotated_frame)
-
-        return
+        # return
 
     if(input_type=="FOLDER"):
 
-        img_list = glob(os.path.join(args.input,"*"))
+        img_list = sorted(glob(os.path.join(args.input,"*")))
+        gt_list = sorted(glob(os.path.join(args.gt, "*")))
 
-        print(f"[INFO] Processing a folder containing {len(img_list)} images.")
+        # print(f"[INFO] Processing a folder containing {len(img_list)} images.")
 
-        TIME_FLAG = time.time()
+        # TIME_FLAG = time.time()
+        # for idx,img_path in enumerate(img_list):
+        #     # print(f"{idx}  image {img_path}")
+        #     # print(f"ground turth path {gt_list[idx]}")
+        #     # import pdb;pdb.set_trace()
 
-        for img_path in img_list:
+        # #     print(f"image_path {img_path}")
+        #     ground_truth = load_ground_truth(gt_list[idx])
             
-            image = cv2.imread(img_path)
-            output_path = getOutputPath(img_path, args.output)
-            annotated_frame = ProcessFrame(model, image, ground_truth, args.iou_threshold)
-            cv2.imwrite(output_path, annotated_frame)
+        #     image = cv2.imread(img_path)
+        #     output_path = getOutputPath(img_path, args.output)
+        #     # print(f"output saved here {output_path}")
+        #     # print(f"output path: {args.output}")
+        #     # import pdb;pdb.set_trace()
+        #     annotated_frame, accuracy = ProcessFrame(model, image, ground_truth, args.iou_threshold)
+        #     best_model = evaluate_models(onnx_files, image, ground_truth, args.output, args.iou_threshold, args.conf_threshold)
+            
+        #     cv2.imwrite(output_path, annotated_frame)
 
-        print(f"[INFO] Processed {len(img_list)} images in {time.time()-TIME_FLAG}s. Avg : {(time.time()-TIME_FLAG)/len(img_list)}s")
+        # print(f"[INFO] Processed {len(img_list)} images in {time.time()-TIME_FLAG}s. Avg : {(time.time()-TIME_FLAG)/len(img_list)}s")
 
-        return
-    
+        # return
+    best_model = evaluate_models(onnx_files, img_list, gt_list, args.output, args.iou_threshold, args.conf_threshold)
 
 if __name__ == "__main__":
 
