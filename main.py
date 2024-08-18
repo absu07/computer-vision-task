@@ -5,6 +5,7 @@ import os
 import numpy as np
 import sys
 import time
+import logging
 from glob import glob
 
 from utils import OnnxRunner
@@ -259,7 +260,7 @@ def ProcessFrame(model: object, frame: np.ndarray, ground_truth: list, iou_thres
     
     return annotated_frame, accuracy
 
-def getOutputPath(input:str, output:str)->str:
+def getOutputPath(onnx_file: str,input:str, output:str)->str:
     """
     Function that takes input file path & output folder path and 
     returns the output file path.
@@ -284,15 +285,49 @@ def getOutputPath(input:str, output:str)->str:
     # test_path =  os.path.join(output,temp_file+"_output."+extension)
     # # import pdb;pdb.set_trace()
     # return os.path.join(output,temp_file+"_output."+extension)
+    file_name, extension = os.path.splitext(os.path.basename(input))
+    new_file_name = f"{file_name}_output{extension}"
+    output_dir = output+'//'+onnx_file.split("\\")[-1]
+    output_dir = os.path.normpath(output_dir)
+    # import pdb;pdb.set_trace()
+    ensure_directory_exists(output_dir)
     
-    file_name, extension = input.split("/")[-1].split(".")
-    return os.path.join(output,file_name+"_output."+extension)
+    output_path =  os.path.normpath(os.path.join(output_dir, new_file_name))
+    
+    
+    return output_path
 
-def evaluate_models(onnx_files: list, img_list: list, gt_list: list, output_folder: str, iou_threshold: float, conf_threshold: float):
+
+def ensure_directory_exists(directory:str ):
+    os.makedirs(directory, exist_ok=True)
+
+
+def evaluate_models(onnx_files: list, img_list: list, gt_list: list, logging_folder: str, output_folder: str, iou_threshold: float, conf_threshold: float):
     best_accuracy = 0
     best_model = None
 
     for onnx_file in onnx_files:
+        # Create a logger for each model evaluation
+        logger = logging.getLogger(onnx_file)
+        logger.setLevel(logging.INFO)
+        
+        # Create a file handler for logging
+        log_filename = f"{onnx_file.replace('.onnx', '')}_evaluation.log"
+        log_filepath = os.path.join(logging_folder, log_filename.split('\\')[-1])
+        log_filepath = os.path.normpath(log_filepath)
+        # import pdb; pdb.set_trace()
+        file_handler = logging.FileHandler(log_filepath)
+        file_handler.setLevel(logging.INFO)
+        
+        # Create a logging format
+        formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+        file_handler.setFormatter(formatter)
+        
+        # Add the file handler to the logger
+        logger.addHandler(file_handler)
+        
+        logger.info(f"Evaluating {onnx_file}...")
+        
         print(f"Evaluating {onnx_file}...")
         model = OnnxRunner(onnx_file, nms_thresh=iou_threshold, conf_thresh=conf_threshold)
         total_accuracy = 0
@@ -300,17 +335,27 @@ def evaluate_models(onnx_files: list, img_list: list, gt_list: list, output_fold
         for idx, img_path in enumerate(img_list):
             ground_truth = load_ground_truth(gt_list[idx])
             image = cv2.imread(img_path)
-            output_path = getOutputPath(img_path, "D:\Personal\Interviews\ML_SmartCowTakeHomeAssignment_2024\ML_SmartCowTakeHomeAssignment\Take_Home_Computer_Vision\computer_vision\computer-vision-task\results")
+            output_path = getOutputPath(onnx_file,img_path, output_folder)
+            # import pdb;pdb.set_trace()
             annotated_frame, accuracy = ProcessFrame(model, image, ground_truth, iou_threshold)
             total_accuracy += accuracy
             cv2.imwrite(output_path, annotated_frame)
+            
+            logger.info(f"Processed image {img_path} with accuracy {accuracy:.4f}")
 
         avg_accuracy = total_accuracy / len(img_list)
+        logger.info(f"Model: {onnx_file}, Average Accuracy: {avg_accuracy:.4f}")
         print(f"Model: {onnx_file}, Average Accuracy: {avg_accuracy:.4f}")
 
         if avg_accuracy > best_accuracy:
             best_accuracy = avg_accuracy
             best_model = onnx_file
+            
+    logger.info(f"Completed evaluation for the {onnx_file}")
+    
+    # Remove the file handler after each iteration to avoid duplicate logs
+    logger.removeHandler(file_handler)
+    file_handler.close()
 
     print(f"Best Model: {best_model} with Average Accuracy: {best_accuracy:.4f}")
     return best_model
@@ -382,18 +427,19 @@ def main(args:object)->None:
         # print(f"[INFO] Processed {len(img_list)} images in {time.time()-TIME_FLAG}s. Avg : {(time.time()-TIME_FLAG)/len(img_list)}s")
 
         # return
-    best_model = evaluate_models(onnx_files, img_list, gt_list, args.output, args.iou_threshold, args.conf_threshold)
+    best_model = evaluate_models(onnx_files, img_list, gt_list, args.logs, args.output, args.iou_threshold, args.conf_threshold)
 
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description='Computer Vision Assignement')
 
     parser.add_argument('--input','-i', type=str, required=True, help="Data input path. Can be an image or a folder of images.")
-    parser.add_argument('--onnx','-o', type=str, required=True, help="Onnx model path.")
+    parser.add_argument('--onnx','-o', type=str, required=True, help="Onnx model path. Can be a single model or a directory of models")
     parser.add_argument('--output','-p', type=str, required=False, help="Output folder path. The infered and annotated data will be written in this folder. Default : results.", default="results")
     parser.add_argument('--iou_threshold','-u', type=float, required=False, help="IOU threshold used in NMS. Default : 0.4", default=0.1)
     parser.add_argument('--conf_threshold','-c', type=float, required=False, help="Confidence score threshold. Default : 0.5", default=0.4)
     parser.add_argument('--gt', '-g', type=str, required=True, help="Path to the ground truth text file.")
+    parser.add_argument('--logs','-l', type=str, required=False, help="path to where logs are stored. Default : logs", default="logs")
 
 
     args = parser.parse_args()

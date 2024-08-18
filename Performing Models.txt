@@ -1,0 +1,22 @@
+1.onnx
+3.onnx
+5.onnx
+6.onnx
+8.onnx
+10.onnx
+11.onnx
+13.onnx (Very Poor)
+15.onnx
+18.onnx (Poor)
+19.onnx
+22.onnx
+23.onnx
+24.onnx (Best Performing Model so far)
+25.onnx
+29.onnx
+32.onnx (Very Poor)
+35.onnx (Poor)
+
+
+
+
