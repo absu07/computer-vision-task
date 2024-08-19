@@ -305,8 +305,20 @@ def ensure_directory_exists(directory:str ):
 def evaluate_models(onnx_files: list, img_list: list, gt_list: list, logging_folder: str, output_folder: str, iou_threshold: float, conf_threshold: float):
     best_accuracy = 0
     best_model = None
+    
+    # Initialize a default logger to avoid UnboundLocalError
+    logger = logging.getLogger('default')
+    # import pdb; pdb.set_trace()
+    
+    # if not onnx_files:
+    #     print("No ONNX files provided for evaluation.")
+    #     return None
 
     for onnx_file in onnx_files:
+        # Ensure logging directory exists
+        if not os.path.exists(logging_folder):
+            os.makedirs(logging_folder)
+            
         # Create a logger for each model evaluation
         logger = logging.getLogger(onnx_file)
         logger.setLevel(logging.INFO)
@@ -351,13 +363,20 @@ def evaluate_models(onnx_files: list, img_list: list, gt_list: list, logging_fol
             best_accuracy = avg_accuracy
             best_model = onnx_file
             
-    logger.info(f"Completed evaluation for the {onnx_file}")
+        logger.info(f"Completed evaluation for the {onnx_file}")
     
-    # Remove the file handler after each iteration to avoid duplicate logs
-    logger.removeHandler(file_handler)
-    file_handler.close()
+        # Remove the file handler after each iteration to avoid duplicate logs
+        logger.removeHandler(file_handler)
+        file_handler.close()
+    
+    if best_model:
+        print(f"Best Model: {best_model} with Average Accuracy: {best_accuracy:.4f}")
+        # return best_model
+    else:
+        print("No models were evaluated.")
+        # return None
 
-    print(f"Best Model: {best_model} with Average Accuracy: {best_accuracy:.4f}")
+    # print(f"Best Model: {best_model} with Average Accuracy: {best_accuracy:.4f}")
     return best_model
 
 def main(args:object)->None:
@@ -436,8 +455,8 @@ if __name__ == "__main__":
     parser.add_argument('--input','-i', type=str, required=True, help="Data input path. Can be an image or a folder of images.")
     parser.add_argument('--onnx','-o', type=str, required=True, help="Onnx model path. Can be a single model or a directory of models")
     parser.add_argument('--output','-p', type=str, required=False, help="Output folder path. The infered and annotated data will be written in this folder. Default : results.", default="results")
-    parser.add_argument('--iou_threshold','-u', type=float, required=False, help="IOU threshold used in NMS. Default : 0.4", default=0.1)
-    parser.add_argument('--conf_threshold','-c', type=float, required=False, help="Confidence score threshold. Default : 0.5", default=0.4)
+    parser.add_argument('--iou_threshold','-u', type=float, required=False, help="IOU threshold used in NMS. Default : 0.4", default=0.4)
+    parser.add_argument('--conf_threshold','-c', type=float, required=False, help="Confidence score threshold. Default : 0.5", default=0.3)
     parser.add_argument('--gt', '-g', type=str, required=True, help="Path to the ground truth text file.")
     parser.add_argument('--logs','-l', type=str, required=False, help="path to where logs are stored. Default : logs", default="logs")
 
