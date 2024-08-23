@@ -335,7 +335,7 @@ def evaluate_models(onnx_files: list, img_list: list, gt_list: list, logging_fol
         formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
         file_handler.setFormatter(formatter)
         
-        # Add the file handler to the logger
+        # Add the file handler to the logger+
         logger.addHandler(file_handler)
         
         logger.info(f"Evaluating {onnx_file}...")

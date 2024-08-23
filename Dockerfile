@@ -17,8 +17,9 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
+COPY requirements.txt /app/requirements.txt
 RUN pip install --no-cache-dir --upgrade pip
-RUN pip install --no-cache-dir opencv-python-headless numpy onnxruntime
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Create necessary directories
 RUN mkdir -p /app/logs/models
@@ -29,8 +30,12 @@ EXPOSE 8080
 # Define environment variable
 ENV PYTHONUNBUFFERED=1
 
-# Set the entrypoint to Python, allowing for live output
+# Copy and set up the script to run the web service and POST request in the background
+COPY run_app_and_post.sh /app/
+RUN chmod +x /app/run_app_and_post.sh
+
+# Set the entrypoint to Python for the main script
 ENTRYPOINT ["python", "main.py"]
 
-# Default command to run the script with default arguments
+# Default command to run the main.py script with default arguments
 CMD ["-i", "WIDERFACE_Validation/images/", "-o", "models/", "-g", "WIDERFACE_Validation/labels/"]

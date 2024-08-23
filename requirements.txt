@@ -1,2 +1,8 @@
-opencv-python==4.5.5.64
+# Python Dependencies
+opencv-python-headless
+numpy
 onnxruntime
+fastapi
+uvicorn[standard]
+pydantic
+requests

@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Aug 15 23:40:52 2024
-
-@author: ASUS
-"""
-
 import os
 
 def delete_images_with_output(folder_path):
