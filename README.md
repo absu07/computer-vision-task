@@ -4,7 +4,14 @@
 
 This project involves utilizing the already provided ONNX files, evaluating them against the validation dataset i.e., by comparing the predicted bounding boxes to the ground truth data and identifying which model performs the best in terms of face detection. 
 
-**Note: The best model is identified based on the _best average accuracy_**
+**Note: The best model is identified based on the _best average accuracy_.**
+
+## Provided Resources
+
+To implement the above project, the following resources are provided:
+- A set of ONNX files found in [computer-vision-task/models] folder
+- The validation dataset can be found in [computer-vision-task/WIDERFACE_Validation/] which includes images along with the corresponding ground truth files
+- A **main.py** script to load the ONNX files, image data, ground truth data, and evaluate and identify the best performing model.
 
 
 
