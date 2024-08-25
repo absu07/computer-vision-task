@@ -9,9 +9,24 @@ This project involves utilizing the already provided ONNX files, evaluating them
 ## Provided Resources
 
 To implement the above project, the following resources are provided:
-- A set of ONNX files found in [computer-vision-task/models] folder
-- The validation dataset can be found in [computer-vision-task/WIDERFACE_Validation/] which includes images along with the corresponding ground truth files
+- A set of ONNX files found in [computer-vision-task/models/] folder
+- The validation dataset can be found in [computer-vision-task/WIDERFACE_Validation/] folder which includes images along with the corresponding ground truth files
 - A **main.py** script to load the ONNX files, image data, ground truth data, and evaluate and identify the best performing model.
+
+## Dependencies
+
+This section lists the required frameworks/libraries used to bootstrap the project.
+
+- Anaconda/PyCharm (depending on the ease of usage)
+- opencv-python-headless
+- numpy
+- onnxruntime
+- fastapi
+- uvicorn[standard]
+- pydantic
+- requests
+
+
 
 
 
