@@ -49,7 +49,8 @@ Follow these steps to set up the project on your local machine:
 
 1. Clone the Repository:
    First, clone the repository to your local machine using Git.
-   git clone https://github.com/yourusername/yourproject.git
+
+   git clone https://github.com/absu07/computer-vision-task.git
 
 
 
