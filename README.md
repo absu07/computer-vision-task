@@ -43,13 +43,13 @@ Before you begin, make sure you have the following software installed on your sy
 
 Ensure that these tools are properly installed and configured before proceeding to the installation steps.
 
-### Steps to Install
+### Setting up the project and installing the dependencies
 
-git clone https://github.com/yourusername/yourproject.git
-cd yourproject
-conda create --name myenv python=3.12.4
-conda activate myenv
-pip install -r requirements.txt
+Follow these steps to set up the project on your local machine:
+
+1. Clone the Repository:
+   First, clone the repository to your local machine using Git.
+   git clone https://github.com/yourusername/yourproject.git
 
 
 
