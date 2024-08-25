@@ -29,9 +29,9 @@ This section lists the required frameworks/libraries used to bootstrap the proje
 - pydantic
 - requests
 
-## Installation
+## Set-Up and Installation
 
-This section describes the steps to install the prerequisites required for running the application.
+This section describes the steps to install the prerequisites and set-up the project required for running the application.
 
 ### Prerequisites
 
@@ -72,7 +72,9 @@ Install all the necessary Python packages listed in requirements.txt.
 
    `pip install -r requirements.txt`
 
+## Usage
 
+This section describes the steps to execute the application (either as a standalone or inside a container).
 
 
 
