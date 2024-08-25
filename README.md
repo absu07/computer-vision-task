@@ -48,14 +48,19 @@ Ensure that these tools are properly installed and configured before proceeding 
 Follow these steps to set up the project on your local machine:
 
 1. Clone the Repository:
-   First, clone the repository to your local machine using Git.
+First, clone the repository to your local machine using Git.
 
    git clone https://github.com/absu07/computer-vision-task.git
 
 2. Navigate to the Project Directory:
-   Move into the project directory.
+Move into the project directory.
 
-   cd computer-vision-task
+   `cd computer-vision-task`
+
+3. Create a Virtual Environment:
+Create a new virtual environment using Anaconda with Python 3.12.4.
+
+   conda create --name myenv python=3.12.4
 
 
 
