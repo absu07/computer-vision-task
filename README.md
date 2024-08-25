@@ -43,6 +43,13 @@ Before you begin, make sure you have the following software installed on your sy
 
 Ensure that these tools are properly installed and configured before proceeding to the installation steps.
 
+### Steps to Install
+
+git clone https://github.com/yourusername/yourproject.git
+cd yourproject
+conda create --name myenv python=3.12.4
+conda activate myenv
+pip install -r requirements.txt
 
 
 
