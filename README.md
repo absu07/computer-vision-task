@@ -60,7 +60,17 @@ Move into the project directory.
 3. Create a Virtual Environment:
 Create a new virtual environment using Anaconda with Python 3.12.4.
 
-   conda create --name myenv python=3.12.4
+   `conda create --name myenv python=3.12.4`
+   
+5. Activate the Virtual Environment:
+Activate the newly created environment.
+
+   `conda activate myenv`
+
+6. Install Required Dependencies:
+Install all the necessary Python packages listed in requirements.txt.
+
+   `pip install -r requirements.txt`
 
 
 
