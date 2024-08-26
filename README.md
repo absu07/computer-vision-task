@@ -85,16 +85,16 @@ Also, the steps to run the application as a web service are mentioned in this se
 2. Running the application inside the docker container.
    - To run the script inside the container, use the following commands:
 
-   1. Build the Docker Image:
+      1. Build the Docker Image:
   
-      `docker build -t "image-name" .`
+         `docker build -t "image-name" .`
 
-   2. Running the Docker Container:
-      - Once the Docker image is built, you can run the container with the following command:
+      2. Running the Docker Container:
+         - Once the Docker image is built, you can run the container with the following command:
 
-        `docker run -it "image-name"`
+           `docker run -it "image-name"`
 
-         This command starts the application which evaluates the ONNX files against the validation data provided and identifies the best-performing model.
+            This command starts the application which evaluates the ONNX files against the validation data provided and identifies the best-performing model.
 
 3. Running the application as a web service:
    - The application has been converted into a web service using the FastAPI web application framework. To run the application as a web service/To start the FastAPI application, use the following command:
