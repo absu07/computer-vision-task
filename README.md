@@ -4,14 +4,14 @@
 
 This project involves utilizing the already provided ONNX files, evaluating them against the validation dataset i.e., by comparing the predicted bounding boxes to the ground truth data and identifying which model performs the best in terms of face detection. 
 
-**Note: The best model is identified based on the _best average accuracy_.**
+**NOTE: The best model is identified based on the _best average accuracy_.**
 
 
 ## Provided Resources
 
 To implement the above project, the following resources are provided:
 - A set of ONNX files found in [computer-vision-task/models/] folder
-- The validation dataset can be found in [computer-vision-task/WIDERFACE_Validation/] folder which includes images along with the corresponding ground truth files
+- The validation dataset can be found in [computer-vision-task/WIDERFACE_Validation/] folder which includes images along with the corresponding ground truth text files
 - A **main.py** script to load the ONNX files, image data, ground truth data, and evaluate and identify the best-performing model.
 
 
@@ -80,9 +80,13 @@ Also, the steps to run the application as a web service are mentioned in this se
 1. Running the application as a standalone.
    - To run the script, use the following command:
 
-     `python main.py -i "Data input path" -o "ONNX model path" -g "Path to the ground truth text files"`
+     `python main.py -i "Data input path/Validation dataset path" -o "ONNX model path" -g "Path to the ground truth text files"`
+     
+     This command evaluates all the ONNX model files against the validation data set provided as an argument in the above command and generates log files which shall be stored by
+     default in the **_logs_** folder and the output i.e., the evaluation results (for each ONNX model) shall be stored by default in the **_results_** folder.
+     **NOTE: The data in the **_logs_** and **_results_** folder should be manually deleted/cleared for now.** 
 
-2. Running the application inside the docker container.
+3. Running the application inside the docker container.
    - To run the script inside the container, use the following commands:
 
    1. Build the Docker Image:
@@ -96,12 +100,12 @@ Also, the steps to run the application as a web service are mentioned in this se
 
         This command starts the application which evaluates the ONNX files against the validation data provided and identifies the best-performing model.
 
-3. Running the application as a web service:
+4. Running the application as a web service:
    - The application has been converted into a web service using the FastAPI web application framework. To run the application as a web service/To start the FastAPI application, use the following command:
      
      `uvicorn app:app --reload`
 
-4. Sending a POST Request:
+5. Sending a POST Request:
    - After starting the FastAPI server, you can send a POST request **_(so that the FastAPI application can perform predictions through a web request)_** using the provided Python script:
      
      `python .\POST_Request.py`
