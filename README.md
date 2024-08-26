@@ -12,7 +12,7 @@ This project involves utilizing the already provided ONNX files, evaluating them
 To implement the above project, the following resources are provided:
 - A set of ONNX files found in [computer-vision-task/models/] folder
 - The validation dataset can be found in [computer-vision-task/WIDERFACE_Validation/] folder which includes images along with the corresponding ground truth files
-- A **main.py** script to load the ONNX files, image data, ground truth data, and evaluate and identify the best performing model.
+- A **main.py** script to load the ONNX files, image data, ground truth data, and evaluate and identify the best-performing model.
 
 
 ## Dependencies
@@ -75,6 +75,29 @@ Install all the necessary Python packages listed in requirements.txt.
 ## Usage
 
 This section describes the steps to execute the application (either as a standalone or inside a container).
+
+1. Running the application as a standalone.
+To run the script, use the following command:
+
+`python main.py -i "Data input path" -o "ONNX model path" -g "Path to the ground truth text files"`
+
+2. Running the application inside the docker container.
+To run the script inside the container, use the following commands:
+
+   1. Build the Docker Image:
+  
+   `docker build -t "image-name" .`
+
+   2. Running the Docker Container:
+   Once the Docker image is built, you can run the container with the following command:
+
+   `docker run --rm -it "image-name"`
+
+   This command starts the application which evaluates the ONNX files against the validation data provided and identifies the best-performing model.
+
+
+
+
 
 
 
