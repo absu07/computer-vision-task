@@ -107,7 +107,7 @@ Also, the steps to run the application as a web service are mentioned in this se
      `python .\POST_Request.py`
 
      This command runs the POST_Request.py script, which sends a POST request **_(in the form of base64 encoded image data which returns an image string)_** to the FastAPI application. The application then
-     returns **_a list of bounding boxes_** of the faces in the image. 
+     returns **_a list of bounding boxes_** of the faces in the image along with the model prediction scores. 
         
 
 
