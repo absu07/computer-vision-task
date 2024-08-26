@@ -4,7 +4,7 @@
 
 This project involves utilizing the already provided ONNX files, evaluating them against the validation dataset i.e., by comparing the predicted bounding boxes to the ground truth data and identifying which model performs the best in terms of face detection. 
 
-**NOTE: The best model is identified based on the _best average accuracy_.**
+**NOTE: The best model is identified based on the _highest average accuracy_.**
 
 
 ## Provided Resources
