@@ -58,25 +58,25 @@ Follow these steps to set up the project on your local machine:
    - Move into the project directory.
      
      ```bash
-     `cd computer-vision-task`
+     cd computer-vision-task
 
 3. Create a Virtual Environment:
    - Create a new virtual environment using Anaconda with Python 3.12.4.
      
      ```bash
-     `conda create --name myenv python=3.12.4`
+     conda create --name myenv python=3.12.4
    
 5. Activate the Virtual Environment:
    - Activate the newly created environment.
      
      ```bash
-     `conda activate myenv`
+     conda activate myenv
 
 6. Install Required Dependencies:
    - Install all the necessary Python packages listed in requirements.txt.
 
      ```bash
-     `pip install -r requirements.txt`
+     pip install -r requirements.txt
 
 ## Usage
 
@@ -86,7 +86,6 @@ Also, the steps to run the application as a web service are mentioned in this se
 1. Running the application as a standalone.
    - To run the script, use the following command:
 
-     ```bash
      `python main.py -i "Data input path/Validation dataset path" -o "ONNX model path" -g "Path to the ground truth text files"`
      
      This command evaluates all the ONNX model files against the validation data set and generates log files which shall be stored by
