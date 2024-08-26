@@ -48,41 +48,41 @@ Ensure that these tools are properly installed and configured before proceeding 
 Follow these steps to set up the project on your local machine:
 
 1. Clone the Repository:
-First, clone the repository to your local machine using Git.
+   - First, clone the repository to your local machine using Git.
 
-   git clone https://github.com/absu07/computer-vision-task.git
+     git clone https://github.com/absu07/computer-vision-task.git
 
 2. Navigate to the Project Directory:
-Move into the project directory.
+   - Move into the project directory.
 
-   `cd computer-vision-task`
+     `cd computer-vision-task`
 
 3. Create a Virtual Environment:
-Create a new virtual environment using Anaconda with Python 3.12.4.
+   - Create a new virtual environment using Anaconda with Python 3.12.4.
 
-   `conda create --name myenv python=3.12.4`
+     `conda create --name myenv python=3.12.4`
    
 5. Activate the Virtual Environment:
-Activate the newly created environment.
+   - Activate the newly created environment.
 
-   `conda activate myenv`
+     `conda activate myenv`
 
 6. Install Required Dependencies:
-Install all the necessary Python packages listed in requirements.txt.
+   - Install all the necessary Python packages listed in requirements.txt.
 
-   `pip install -r requirements.txt`
+     `pip install -r requirements.txt`
 
 ## Usage
 
 This section describes the steps to execute the application (either as a standalone or inside a container).
 
 1. Running the application as a standalone.
-   To run the script, use the following command:
+   - To run the script, use the following command:
 
    `python main.py -i "Data input path" -o "ONNX model path" -g "Path to the ground truth text files"`
 
 2. Running the application inside the docker container.
-   To run the script inside the container, use the following commands:
+   - To run the script inside the container, use the following commands:
 
    1. Build the Docker Image:
   
