@@ -75,6 +75,7 @@ Follow these steps to set up the project on your local machine:
 ## Usage
 
 This section describes the steps to execute the application (either as a standalone or inside a container).
+Also, the steps to run the application as a web service are mentioned in this section. 
 
 1. Running the application as a standalone.
    - To run the script, use the following command:
@@ -89,11 +90,25 @@ This section describes the steps to execute the application (either as a standal
       `docker build -t "image-name" .`
 
    2. Running the Docker Container:
-      Once the Docker image is built, you can run the container with the following command:
+      - Once the Docker image is built, you can run the container with the following command:
 
-      `docker run --rm -it "image-name"`
+        `docker run -it "image-name"`
 
-      This command starts the application which evaluates the ONNX files against the validation data provided and identifies the best-performing model.
+         This command starts the application which evaluates the ONNX files against the validation data provided and identifies the best-performing model.
+
+   3. Running the application as a web service:
+      - The application has been converted into a web service using the FastAPI web application framework. To run the application as a web service/To start the FastAPI application, use the following command:
+     
+        `uvicorn app:app --reload`
+
+   4. Sending a POST Request:
+      - After starting the FastAPI server, you can send a POST request **(so that the FastAPI application can perform predictions through a web request)** using the provided Python script:
+     
+        `python .\POST_Request.py`
+
+        This command runs the POST_Request.py script, which sends a POST request **(in the form of base64 encoded image data which returns an image string)** to the FastAPI application. The application then
+        returns **a list of bounding boxes** of the faces in the image. 
+        
 
 
 
