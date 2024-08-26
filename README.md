@@ -84,6 +84,7 @@ Also, the steps to run the application as a web service are mentioned in this se
      
      This command evaluates all the ONNX model files against the validation data set provided as an argument in the above command and generates log files which shall be stored by
      default in the **_logs_** folder and the output i.e., the evaluation results (for each ONNX model) shall be stored by default in the **_results_** folder.
+
      **NOTE: The data in the **_logs_** and **_results_** folder should be manually deleted/cleared for now.** 
 
 3. Running the application inside the docker container.
