@@ -74,7 +74,7 @@ Follow these steps to set up the project on your local machine:
 
 ## Usage
 
-This section describes the steps to execute the application (either as a standalone or inside a container).
+This section describes the steps to execute the application (either as a standalone or inside a docker container).
 Also, the steps to run the application as a web service are mentioned in this section. 
 
 1. Running the application as a standalone.
