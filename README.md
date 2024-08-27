@@ -110,7 +110,7 @@ Also, the steps to run the application as a web service are mentioned in this se
 3. Running the application as a web service:
    - The application has been converted into a web service using the FastAPI web application framework. To run the application as a web service/to start the FastAPI application, use the following command:
      
-     `uvicorn app:app --reload --onnx "path to onnx model`
+     `uvicorn app:app --reload --onnx "path to onnx model"`
         
 4. Sending a POST Request:
    - After starting the FastAPI server, you can send a POST request to it**_(so that the FastAPI application can perform predictions through a web request)_** using the provided Python script:
