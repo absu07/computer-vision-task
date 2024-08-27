@@ -110,15 +110,15 @@ Also, the steps to run the application as a web service are mentioned in this se
 3. Running the application as a web service:
    - The application has been converted into a web service using the FastAPI web application framework. To run the application as a web service/to start the FastAPI application, use the following command:
      
-     `uvicorn app:app --reload`
-
+     `uvicorn app:app --reload --onnx "path to onnx model`
+        
 4. Sending a POST Request:
    - After starting the FastAPI server, you can send a POST request to it**_(so that the FastAPI application can perform predictions through a web request)_** using the provided Python script:
      
-     `python .\POST_Request.py`
+     `python .\POST_Request.py -i "Data input path"`
 
-     This command runs the POST_Request.py script, which sends a POST request **_(in the form of an image string i.e., base64 encoded image data)_** to the FastAPI application. The application then
-     returns **_a list of bounding boxes_** of the faces in the image along with the model prediction scores. 
+     This command runs the POST_Request.py script, which sends a POST request **_(in the form of an image string i.e., base64 encoded image data)_** to the 
+     FastAPI application. The application then returns **_a list of bounding boxes_** of the faces in the image along with the model prediction scores. 
         
 
 
