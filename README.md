@@ -115,7 +115,7 @@ Also, the steps to run the application as a web service are mentioned in this se
 4. Sending a POST Request:
    - After starting the FastAPI server, you can send a POST request to it**_(so that the FastAPI application can perform predictions through a web request)_** using the provided Python script:
      
-     `python .\POST_Request.py -i "Data input path"`
+     `python POST_Request.py -i "Data input path"`
 
      This command runs the POST_Request.py script, which sends a POST request **_(in the form of an image string i.e., base64 encoded image data)_** to the 
      FastAPI application. The application then returns **_a list of bounding boxes_** of the faces in the image along with the model prediction scores. 
