@@ -27,7 +27,7 @@ def run_prediction(img_path):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='test the web  service with post request')
+    parser = argparse.ArgumentParser(description='test the web service with post request')
     parser.add_argument('--input','-i', type=str, required=True, help="Data input path.It should be a single image.") 
     args = parser.parse_args()
     img_path = args.input
