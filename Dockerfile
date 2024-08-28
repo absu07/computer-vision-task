@@ -31,8 +31,8 @@ EXPOSE 8080
 ENV PYTHONUNBUFFERED=1
 
 # Copy and set up the script to run the web service and POST request in the background
-COPY run_app_and_post.sh /app/
-RUN chmod +x /app/run_app_and_post.sh
+#COPY run_app_and_post.sh /app/
+#RUN chmod +x /app/run_app_and_post.sh
 
 # Set the entrypoint to Python for the main script
 ENTRYPOINT ["python", "main.py"]

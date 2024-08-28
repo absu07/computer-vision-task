@@ -5,6 +5,8 @@ from pydantic import BaseModel
 import base64
 from typing import List, Tuple
 from utils import OnnxRunner
+import argparse
+import uvicorn
 
 app = FastAPI()
 
@@ -41,8 +43,8 @@ async def predict_faces(request: ImageRequest):
 
         # Process the image
         processed_frame = preProcessFrame(image)
-        onnx_model = OnnxRunner(r"D:\Personal\Interviews\ML_SmartCowTakeHomeAssignment_2024\ML_SmartCowTakeHomeAssignment\Take_Home_Computer_Vision\computer_vision\computer-vision-task\models\24.onnx")
-        import pdb;pdb.set_trace()
+        onnx_model = OnnxRunner(args.onnx)  #OnnxRunner(r".\models\24.onnx")
+        # import pdb;pdb.set_trace()
         metadata = onnx_model.run(processed_frame)
 
         # Process the metadata to extract bounding boxes
@@ -65,5 +67,8 @@ async def predict_faces(request: ImageRequest):
 
 # Run the app using Uvicorn if this script is executed directly
 if __name__ == "__main__":
-    import uvicorn
+    parser = argparse.ArgumentParser(description='Web service application for running and evaluating the onnnx model against an image')
+    parser.add_argument('--onnx','-o', type=str, required=True, help="Path to the ONNX model file")
+    args = parser.parse_args()
+    
     uvicorn.run(app, host="0.0.0.0", port=8000)

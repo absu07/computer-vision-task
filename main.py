@@ -1,6 +1,5 @@
 import argparse
 import cv2
-#import matplotlib.pyplot as plt
 import os
 import numpy as np
 import sys
@@ -73,48 +72,6 @@ def preProcessFrame(frame:np.ndarray)->np.ndarray:
     
     return frame_bchw
 
-# def postProcessFrame(metadata:list, frame:np.ndarray)->np.ndarray:
-#     """
-#     In order to display on the image the model's result,
-#     this function will draw a list of metadata on a frame and 
-#     return the result.
-
-#     args : 
-#         metadata (list) : list of scaled bounding boxes [x1,y1,x2,y2,score]
-#         frame (numpy.ndarray) : plain frame
-
-#     returns :
-#         frame (numpy.ndarray) : frame with bounding boxes drawn on it
-#     """
-
-#     # Make a copy of the frame to draw on
-#     annotated_frame = frame.copy()
-
-#     # Iterate over each detected object
-#     for box in metadata:
-#         # Extract coordinates and score
-#         x1, y1, x2, y2, score = box
-#         print(f"x1 {x1}, y1 {y1}, x2 {x2}, y2 {y2}, score {score}")
-        
-#         # Convert coordinates to integer if they are not already
-#         x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2)
-        
-#         print("Drawing bounding box...")
-#         # Draw bounding box
-#         cv2.rectangle(annotated_frame, (0, 0), (100, 100), (0, 255, 0), 2)
-#         print("Bounding box drawn successfully.")
-        
-#         # Put score text
-#         label = f"{score:.2f}"
-#         cv2.putText(annotated_frame, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
-        
-#     cv2.imshow('Predictions', annotated_frame)
-    
-#     cv2.waitKey(0)
-#     cv2.destroyAllWindows()
-    
-#     return annotated_frame
-
 def postProcessFrame(metadata:list, frame:np.ndarray)->np.ndarray:
     """
     In order to display on the image the model's result,
@@ -155,36 +112,8 @@ def postProcessFrame(metadata:list, frame:np.ndarray)->np.ndarray:
         # Put score text
         label = f"{score:.2f}"
         cv2.putText(annotated_frame, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
-
-    # cv2.imshow('Predictions', annotated_frame)
-    
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
     
     return annotated_frame
-
-
-# def ProcessFrame(model:object,frame:np.ndarray):
-#     """
-#     Main function that will take a raw OpenCV frame,
-#     will preprocess it, will infer it using the onnx model
-#     and will postprocess the result in order to draw the 
-#     bounding boxes on the frame and save it.
-
-#     args : 
-#         model (OnnxRunner) : OnnxRunner that wraps an ORT object, able to be infered
-#         frame (np.ndarray) : raw frame HWC
-
-#     returns : 
-#         np.ndarray : same frame as input but with bounding boxes drawn on it
-#     """
-
-#     processed_frame = preProcessFrame(frame)
-#     metadata = model.run(processed_frame)
-#     print(f"Metadata: {metadata}")
-#     annotated_frame = postProcessFrame(metadata, frame)
-
-#     return annotated_frame
 
 def load_ground_truth(gt_path: str) -> list:
     """
@@ -229,6 +158,19 @@ def iou(box1: list, box2: list) -> float:
     return iou_score
 
 def ProcessFrame(model: object, frame: np.ndarray, ground_truth: list, iou_threshold: float) -> np.ndarray:
+    """
+    Process a single image frame, making predictions using the provided model and evaluating them against the ground truth.
+
+    Args:
+        model (object): The model object used to make predictions on the image frame.
+        frame (np.ndarray): The image frame to be processed, represented as a NumPy array.
+        ground_truth (list): A list of ground truth bounding boxes, where each bounding box is represented as a list of coordinates [x1, y1, x2, y2].
+        iou_threshold (float): The Intersection over Union (IoU) threshold for determining whether a predicted bounding box matches the ground truth.
+
+    Returns:
+        np.ndarray: The annotated image frame with predictions overlaid.
+        float: The accuracy of the model's predictions, calculated as the ratio of correct predictions to the total number of ground truth boxes.
+    """
     processed_frame = preProcessFrame(frame)
     metadata = model.run(processed_frame)
     # print(f"Metadata: {metadata}")
@@ -273,18 +215,6 @@ def getOutputPath(onnx_file: str,input:str, output:str)->str:
         str : output file path (/path/to/output/image_output.jpg)
     """
 
-    # file_name, extension = input.split("\\")[-1].split(".")
-
-    # # import pdb;pdb.set_trace()
-    # # output = "D:\Personal\Interviews\ML_SmartCowTakeHomeAssignment_2024\ML_SmartCowTakeHomeAssignment\Take_Home_Computer_Vision\computer_vision\computer-vision-task\results"
-    # # temp = os.path.join(output_x,file_name+"_output."+extension)
-    
-    # file_name = '\\'.join(file_name.split('\\')[:-2])
-    # # import pdb;pdb.set_trace()
-    # temp_file = input.split("/")[-1].split(".")[0].split('\\')[-1]
-    # test_path =  os.path.join(output,temp_file+"_output."+extension)
-    # # import pdb;pdb.set_trace()
-    # return os.path.join(output,temp_file+"_output."+extension)
     file_name, extension = os.path.splitext(os.path.basename(input))
     new_file_name = f"{file_name}_output{extension}"
     output_dir = output+'//'+onnx_file.split("\\")[-1]
@@ -299,20 +229,42 @@ def getOutputPath(onnx_file: str,input:str, output:str)->str:
 
 
 def ensure_directory_exists(directory:str ):
+    """
+    Ensure that a directory exists, creating it if necessary.
+
+    Args:
+        directory (str): The path to the directory that needs to be checked.
+
+    Functionality:
+        - If the specified directory does not exist, it will be created.
+        - If the directory already exists, no action is taken.
+    """
     os.makedirs(directory, exist_ok=True)
 
 
 def evaluate_models(onnx_files: list, img_list: list, gt_list: list, logging_folder: str, output_folder: str, iou_threshold: float, conf_threshold: float):
+    """
+    Evaluate a list of ONNX models on a set of images and ground truths, logging the performance metrics
+    and identifying the model with the highest average accuracy.
+
+    Args:
+        onnx_files (list): List of paths to ONNX model files.
+        img_list (list): List of paths to input images for evaluation.
+        gt_list (list): List of paths to ground truth files corresponding to the images.
+        logging_folder (str): Path to the folder where evaluation logs will be saved.
+        output_folder (str): Path to the folder where infered and annotated images will be saved.
+        iou_threshold (float): Intersection over Union (IoU) threshold for model evaluation.
+        conf_threshold (float): Confidence threshold for model evaluation.
+
+    Returns:
+        str: Path to the ONNX model file with the highest average accuracy.
+             Returns None if no models are evaluated.
+    """
     best_accuracy = 0
     best_model = None
     
     # Initialize a default logger to avoid UnboundLocalError
     logger = logging.getLogger('default')
-    # import pdb; pdb.set_trace()
-    
-    # if not onnx_files:
-    #     print("No ONNX files provided for evaluation.")
-    #     return None
 
     for onnx_file in onnx_files:
         # Ensure logging directory exists
@@ -392,26 +344,11 @@ def main(args:object)->None:
         - conf_threshold (float)
     """
 
-    # model = OnnxRunner(args.onnx, nms_thresh=args.iou_threshold, conf_thresh=args.conf_threshold)
-
     input_type = parse_input(args.input)  
     onnx_files = sorted(glob(os.path.join(args.onnx, "*.onnx")))
 
     if(input_type=="IMG"):
-        # Load ground truth data
-        # ground_truth = load_ground_truth(args.gt)
-        # print(f"[INFO] Processing 1 image : {args.input}")
-
-        # TIME_FLAG = time.time()
-
-        # image = cv2.imread(args.input)
-        # output_path = getOutputPath(args.input, args.output)
-        # annotated_frame, accuracy = ProcessFrame(model, image, ground_truth, args.iou_threshold)
-
-        # best_model = evaluate_models(onnx_files, image, ground_truth, args.output, args.iou_threshold, args.conf_threshold)
-        # # print(f"[INFO] Processed image in {time.time()-TIME_FLAG}s")
-
-        # cv2.imwrite(output_path, annotated_frame)
+        
         img_list = [args.input]
         gt_list = [args.gt]
 
@@ -422,30 +359,6 @@ def main(args:object)->None:
         img_list = sorted(glob(os.path.join(args.input,"*")))
         gt_list = sorted(glob(os.path.join(args.gt, "*")))
 
-        # print(f"[INFO] Processing a folder containing {len(img_list)} images.")
-
-        # TIME_FLAG = time.time()
-        # for idx,img_path in enumerate(img_list):
-        #     # print(f"{idx}  image {img_path}")
-        #     # print(f"ground turth path {gt_list[idx]}")
-        #     # import pdb;pdb.set_trace()
-
-        # #     print(f"image_path {img_path}")
-        #     ground_truth = load_ground_truth(gt_list[idx])
-            
-        #     image = cv2.imread(img_path)
-        #     output_path = getOutputPath(img_path, args.output)
-        #     # print(f"output saved here {output_path}")
-        #     # print(f"output path: {args.output}")
-        #     # import pdb;pdb.set_trace()
-        #     annotated_frame, accuracy = ProcessFrame(model, image, ground_truth, args.iou_threshold)
-        #     best_model = evaluate_models(onnx_files, image, ground_truth, args.output, args.iou_threshold, args.conf_threshold)
-            
-        #     cv2.imwrite(output_path, annotated_frame)
-
-        # print(f"[INFO] Processed {len(img_list)} images in {time.time()-TIME_FLAG}s. Avg : {(time.time()-TIME_FLAG)/len(img_list)}s")
-
-        # return
     best_model = evaluate_models(onnx_files, img_list, gt_list, args.logs, args.output, args.iou_threshold, args.conf_threshold)
 
 if __name__ == "__main__":
@@ -457,7 +370,7 @@ if __name__ == "__main__":
     parser.add_argument('--output','-p', type=str, required=False, help="Output folder path. The infered and annotated data will be written in this folder. Default : results.", default="results")
     parser.add_argument('--iou_threshold','-u', type=float, required=False, help="IOU threshold used in NMS. Default : 0.4", default=0.4)
     parser.add_argument('--conf_threshold','-c', type=float, required=False, help="Confidence score threshold. Default : 0.5", default=0.3)
-    parser.add_argument('--gt', '-g', type=str, required=True, help="Path to the ground truth text file.")
+    parser.add_argument('--gt', '-g', type=str, required=True, help="Path to the ground truth text file/s.")
     parser.add_argument('--logs','-l', type=str, required=False, help="path to where logs are stored. Default : logs", default="logs")
 
 
